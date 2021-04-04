@@ -42,29 +42,24 @@ public:
 	~linked_list();//destructor
 	void operator=(const linked_list<T>& L);//L-value operator=; copy assignment
 	void operator=(linked_list<T>&& L);//R-value operator= ; move assignment
-	template <class T> friend ostream& operator<<(ostream& str, const linked_list<T>& L);
+	/***********************************************************************************************************************************************
+	
+	I had to change this because it didnt work with g++ and I changed T to T2 and it worked.
+
+	***********************************************************************************************************************************************/
+	template <class T2> friend ostream& operator<<(ostream& str, const linked_list<T>& L);
 };
 
 template <class T> ostream& operator<<(ostream& str, const linked_list<T>& L);
 
 template <class T> linked_list<T>::linked_list(const initializer_list<T>& V) : linked_list() {
-	for(int i = 0; i < V.size; ++i){
-        if(i == 0){
-            head = tail = new node();
-        }
-    }
+	for(auto a : V)
+        push_back(a);
 	cout << "initializer_list LL" << endl;
 }
 
 template <class T> linked_list<T>::~linked_list() {  //destructor										
-	node* current = head;
-    node* next;
-
-    while (current != NULL) {
-        next = current->next;
-        delete current;
-        current = next;
-    }
+	//Your code
 	cout << "Destructor LL" << endl;
 }
 
@@ -103,7 +98,6 @@ template <class T> void linked_list<T>::push_back(T t)
 {
 	node<T>* p = new node<T>(t);
 	if (head == nullptr) { head = tail = p; }
-
 	else {
 		p->previous = tail;
 		tail->next = p;
@@ -112,7 +106,8 @@ template <class T> void linked_list<T>::push_back(T t)
 }
 
 template <class T> bool linked_list<T>::operator==(const linked_list<T>& L) const {
-//Your code
+	//Your code
+	return false;
 }
 
 template <class X> class NODE {
@@ -141,7 +136,7 @@ public:
 
 template <class X> bool Triangle<X>::operator==(const Triangle<X>& T) {
 	//Your code
-
+	return false;
 }
 
 
@@ -160,20 +155,25 @@ template <class X> Triangle<X>::Triangle(Triangle<X>&& T) {//move constructor
 template <class X> Triangle<X> Triangle<X>::ThreeTimes() {//ThreeTimes
 	//Your code
 	cout << "ThreeTimes Triangle" << endl;
-
+	return Triangle<X>();
 }
 
 template <class X> Triangle<X>::~Triangle() {// {};//destructor
 	//Your code
-
 	cout << "Destructor Triangle" << endl;
-
 }
+
 template <class X> void Triangle<X>::operator=(const Triangle<X>& T) {//copy assignment
 	//Your code
-	cout << "Copy Constructor Triangle" << endl;
 
+	cout << "Copy Assignment Triangle" << endl;
 }
+
+template <class X> Triangle<X>::Triangle(const Triangle<X>& T) { //copy constructor
+	//Your code
+	cout << "Copy Constructor Triangle" << endl;
+}
+
 
 template <class X> Triangle<X>::Triangle(const initializer_list<initializer_list<X>>& I) {
 	//Your code
@@ -225,17 +225,18 @@ int main() {
 }
 
 template <class T> ostream& operator<<(ostream& str, const ThreeD<T>& t) {
-//Your code
+	//Your code
+	return str;
 }
 
 template <class T> ostream& operator<<(ostream& str, const linked_list<T>& L) {
 	//Your code
+
+	return str;
 }
 
 
 template <class X> ostream& operator<<(ostream& str, const Triangle<X>& T) {
 	//Your code
-
-
+	return str;
 }
-
