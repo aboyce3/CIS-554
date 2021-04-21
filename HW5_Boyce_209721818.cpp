@@ -88,6 +88,7 @@ ring::ring(const initializer_list< initializer_list<int>> &V){
 	}
 }
 
+//Create a copy of "this" ring and multiply each nodes value * 3
 ring ring::Threetimes(){
 	ring r = *this;
 	auto p1 = r.head;
@@ -208,6 +209,7 @@ For example in the case of:
 The node with the value of 1 is the head and the nodes being stored in the vector are 1, 4, and 7.
 */
 ring::ring(int r, int c, int k){
+	//Base cases
 	if(r == 1 && c == 1){
 		num_cols = c;
 		num_rows = r;
@@ -231,6 +233,7 @@ ring::ring(int r, int c, int k){
 		}
 		return;
 	}
+	//End base cases and begin populating vector.
     head = *new shared_ptr<node>(new node(rand() % k));
     num_cols = c;
     num_rows = r;
@@ -240,6 +243,7 @@ ring::ring(int r, int c, int k){
 		shared_ptr<node> p1 = *new shared_ptr<node>(new node(rand() % k));
 		startPositions.push_back(p1);
 	}
+	//End pushing to vector. Now setting values and east references.
 	shared_ptr<node> p1;
 	for(int i = 0; i < num_rows; i++){
 		for(int j = 0; j < num_cols; ++j){
@@ -259,7 +263,7 @@ ring::ring(int r, int c, int k){
 		}
 	}
 
-	//This is where I set the south (weak pointers) of each node
+	//Setting the south (weak pointers) of each node.
 	for(int i = 0; i < num_rows; ++i){
 		shared_ptr<node> wp1 = startPositions[i];
 		shared_ptr<node> wp2;
@@ -359,7 +363,7 @@ void ring::DelCol(int i){
 	}
 }
 
-//Delete a row and use a vector to keep track of the first node in each row.
+//Delete a row and use a vector to keep track of the first node in each row. This also takes into account base cases.
 void ring::DelRow(int i){
 	if(i >= num_rows || i < 0) return;
 	if(!head) return;
@@ -385,7 +389,7 @@ void ring::DelRow(int i){
 		num_rows -= 1;
 		return;
 	}
-	//End base cases and create vector of the first node for each row.
+	//End base cases and create vector of the first nodes in each row.
 	vector<shared_ptr<node>> vi;
 	auto p1 = head;
 	vi.push_back(p1);
@@ -452,6 +456,7 @@ ring::ring(ring &&r){
 	cout << "Move Constructor" << endl;
 }
 
+//Move assignment for ring.
 void ring::operator=(ring &&r){
     head = r.head;
     num_cols = r.num_cols;
@@ -460,6 +465,7 @@ void ring::operator=(ring &&r){
 	cout << "Move Assignment" << endl;
 }
 
+//operator for << overloaded to print the values of each node.
 ostream& operator<<(ostream& os, const ring& r){
 	auto p1 = r.head;
 	os << endl;
