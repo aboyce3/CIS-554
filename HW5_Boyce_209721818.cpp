@@ -300,15 +300,12 @@ void ring::DelCol(int i){
 		return;
 	} else if(num_rows == 1 && num_cols > 1 && i == 0){
 		auto p1 = head;
-		//auto p2 = head;
 		for(int k = 0; k < num_cols; ++k){
 			p1 = p1->east;
 		}
 		head = head->east;
 		p1->south = head;
 		p1->east = head;
-		//p2->south.reset();
-		//p2.reset();
 		num_cols -= 1;
 		return;
 	} else if(num_rows == 1 && num_cols > 1){
@@ -316,11 +313,8 @@ void ring::DelCol(int i){
 		for(int j = 0; j < i; ++j){
 			p1 = p1->east;
 		}
-		//auto p2 = p1;
 		p1->east = p1->east->east;
 		p1->south = p1->east;
-		//p2->south.reset();
-		//p2.reset();
 		num_cols -= 1;
 		return;
 	}
@@ -329,9 +323,8 @@ void ring::DelCol(int i){
 	auto p1 = head;
 	vi.push_back(p1);
 	for(int j = 0; j < num_rows-1; ++j){
-		for(int k = 0; k < num_cols; ++k)
 			p1 = p1->south.lock();
-		vi.push_back(p1);
+			vi.push_back(p1);
 	}	
 	//If we are deleteing a column which involves the head then we manipulate the pointers to isolate the column.
 	if(i == 0){
@@ -342,55 +335,26 @@ void ring::DelCol(int i){
 					head = head->east;
 					p2->east = head;
 					p2->south = head;
-				} else if(j == num_cols-1){
+				} else if(j == num_cols-1)
 					p2->east = p2->east->east;
-					p2->south = p2->east;
-				}else p2 = p2->east;
+				p2 = p2->east;
 			}
 		}
-		//We then delete the column that
-		/*auto delPointer = vi[0];
-		for(int k = 0; k < num_rows; ++k){
-			auto p2 = vi[k];
-			if(k == num_rows-1){
-				p2->south.lock();
-				p2->east = nullptr;
-				delPointer.reset();
-			}
-			else {
-				p2->east = nullptr;
-			}
-		}*/
 		num_cols -= 1;
 
 	//If we are deleting a column that doesn't involve the head being deleted.
 	} else {
-		//Set pointer of were to begin deletion
-		//shared_ptr<node> delPointer = vi[0];
-		//for(int c = 0; c < i; ++c)
-		//	delPointer = delPointer->east;
-		//auto p3 = delPointer;
-		//End finding the pointer to delete.
 		for(int k = 0; k < num_rows; ++k){
 			auto p2 = vi[k];
 			for(int j = 0; j < i; ++j){
-				if(j == i-1){
+				if(j == i-1 && k == num_rows-1){
 					p2->east = p2->east->east;
-					p2->south = p2->east;
-				}else p2 = p2->east;
+					p2->south = p2->south.lock()->east;
+				}else if(j == i-1) 
+					p2->east = p2->east->east;
+				p2 = p2->east;
 			}
 		}
-		//Reset pointers;
-		/*for(int r = 0; r < num_rows; ++r){
-			if(r == num_rows-1){
-				p3->east = nullptr;
-				delPointer->south.reset();
-				delPointer.reset();
-			} else{
-				p3->east = nullptr;
-				p3 = (shared_ptr<node>)p3->south;
-			}
-		}*/
 		num_cols -= 1;
 	}
 }
@@ -426,11 +390,12 @@ void ring::DelRow(int i){
 	auto p1 = head;
 	vi.push_back(p1);
 	for(int j = 0; j < num_rows-1; ++j){
-		for(int k = 0; k < num_cols; ++k)
+		for(int k = 0; k < num_cols; ++k){
 			p1 = p1->south.lock();
-		vi.push_back(p1);
+			vi.push_back(p1);
+		}
 	}
-	//CIf i is the head.
+	//If i is the head.
 	if(i == 0){
 		auto p2 = vi[num_rows-1];
 		auto p3 = vi[1]->east;
@@ -500,7 +465,8 @@ ostream& operator<<(ostream& os, const ring& r){
 	os << endl;
 	for(int i = 0; i < r.num_rows; ++i){
 		for(int j = 0; j < r.num_cols; ++j){
-			os << p1->value << " ";
+			if(p1->value >= 10) os << p1->value << " ";
+			else os <<  p1->value << "  ";
 			p1 = p1->east;
 		}
 		os << endl;
