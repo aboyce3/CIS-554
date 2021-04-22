@@ -20,18 +20,18 @@ public:
 	shared_ptr<node> head;
 	int num_rows;
 	int num_cols;
-	ring(){}
+	ring() {}
 	ring(int r, int c, int k);//constructor
 					   //i rows and j cols
 					   //values randomly in 0 ..k-1
 
 
 	~ring();//destructor; do as little work as possible
-	ring(const ring &r); //copy constructor
-	ring(ring &&r); //move constructor
-	void operator=(ring &&r);//Rvalue operator= , i.e., Move Assignment
-	void operator=(const ring &r); //Lvalue operator= , i.e., Copy Assignment
-	ring(const initializer_list< initializer_list<int>> &V);
+	ring(const ring& r); //copy constructor
+	ring(ring&& r); //move constructor
+	void operator=(ring&& r);//Rvalue operator= , i.e., Move Assignment
+	void operator=(const ring& r); //Lvalue operator= , i.e., Copy Assignment
+	ring(const initializer_list< initializer_list<int>>& V);
 	void DelCol(int i);//delete col i of *this ; col number starts at 0
 	void DelRow(int i); //delete rowl i of *this  ; row number starts at 0
 	ring Threetimes();
@@ -40,29 +40,30 @@ public:
 };
 
 //Constructor for a ring using an initilizer list with a vector containing the first node of each row.
-ring::ring(const initializer_list< initializer_list<int>> &V){
+ring::ring(const initializer_list< initializer_list<int>>& V) {
 	vector<shared_ptr<node>> vi;
 	num_cols = V.begin()->size();
 	num_rows = V.size();
 	int counter = 0;
 
 	//initialize the vector of nodes and set the head
-	for(auto & i : V)
+	for (auto& i : V)
 		vi.push_back(*new shared_ptr<node>(new node));
 	head = vi[0];
 
 	//Configure all of the east pointers
-	for(auto & i : V){
+	for (auto& i : V) {
 		auto p1 = vi[counter];
 		int innerCount = 0;
-		for(auto & j : i){
+		for (auto& j : i) {
 			p1->value = j;
-			if(innerCount < num_cols-1) {
+			if (innerCount < num_cols - 1) {
 				p1->east = *new shared_ptr<node>(new node);
 				p1 = p1->east;
-			}else{
-				if(counter == num_rows-1) p1->east = vi[0];
-				else p1->east = vi[counter+1];
+			}
+			else {
+				if (counter == num_rows - 1) p1->east = vi[0];
+				else p1->east = vi[counter + 1];
 				p1 = p1->east;
 			}
 			++innerCount;
@@ -71,15 +72,16 @@ ring::ring(const initializer_list< initializer_list<int>> &V){
 	}
 
 	//Configure the south pointers.
-	for(int i = 0; i < num_rows; ++i){
+	for (int i = 0; i < num_rows; ++i) {
 		shared_ptr<node> wp1 = vi[i];
 		shared_ptr<node> wp2;
-		if(i == num_rows-1) wp2 = vi[0]->east;
-		else wp2 =  vi[i+1];
-		for(int j = 0; j < num_cols; ++j){
-			if(j == num_cols-1 && i == num_rows-1){
+		if (i == num_rows - 1) wp2 = vi[0]->east;
+		else wp2 = vi[i + 1];
+		for (int j = 0; j < num_cols; ++j) {
+			if (j == num_cols - 1 && i == num_rows - 1) {
 				wp1->south = head;
-			} else{
+			}
+			else {
 				wp1->south = wp2;
 				wp1 = wp1->east;
 				wp2 = wp2->east;
@@ -89,106 +91,112 @@ ring::ring(const initializer_list< initializer_list<int>> &V){
 }
 
 //Create a copy of "this" ring and multiply each nodes value * 3
-ring ring::Threetimes(){
+ring ring::Threetimes() {
 	ring r = *this;
 	auto p1 = r.head;
-	do{
+	do {
 		p1->value = p1->value * 3;
 		p1 = p1->east;
-	}while(p1 != r.head);
+	} while (p1 != r.head);
 	cout << "TheeTimes" << endl;
 	return r;
 }
 
 //Copy Assignment with vector of first element in each row.
-void ring::operator=(const ring &r){
+void ring::operator=(const ring& r) {
 	num_rows = r.num_rows;
 	num_cols = r.num_cols;
 	shared_ptr<node> p1;
 	auto p2 = r.head;
 	vector<shared_ptr<node>> vi;
-	for(int i = 0; i < num_rows; ++i)
+	for (int i = 0; i < num_rows; ++i)
 		vi.push_back(*new shared_ptr<node>(new node));
 	head = vi[0];
-	for(int i = 0; i < num_rows; ++i){
+	for (int i = 0; i < num_rows; ++i) {
 		p1 = vi[i];
-		for(int j = 0; j < num_cols; ++j){
-			if(j != num_cols-1){
+		for (int j = 0; j < num_cols; ++j) {
+			if (j != num_cols - 1) {
 				p1->value = p2->value;
 				p1->east = *new shared_ptr<node>(new node);
 				p1 = p1->east;
 				p2 = p2->east;
-			} else if(i == num_rows-1 && j == num_cols-1){
+			}
+			else if (i == num_rows - 1 && j == num_cols - 1) {
 				p1->value = p2->value;
 				p1->east = vi[0];
 				p2 = p2->east;
-			} else{
+			}
+			else {
 				p1->value = p2->value;
-				p1->east = vi[i+1];
+				p1->east = vi[i + 1];
 				p2 = p2->east;
 			}
 		}
 	}
 
 	//This is where I set the south (weak pointers) of each node
-	for(int i = 0; i < num_rows; ++i){
+	for (int i = 0; i < num_rows; ++i) {
 		shared_ptr<node> wp1 = vi[i];
 		shared_ptr<node> wp2;
-		if(i == num_rows-1) wp2 = vi[0]->east;
-		else wp2 =  vi[i+1];
-		for(int j = 0; j < num_cols; ++j){
-			if(j == num_cols-1 && i == num_rows-1){
+		if (i == num_rows - 1) wp2 = vi[0]->east;
+		else wp2 = vi[i + 1];
+		for (int j = 0; j < num_cols; ++j) {
+			if (j == num_cols - 1 && i == num_rows - 1) {
 				wp1->south = head;
-			} else{
+			}
+			else {
 				wp1->south = wp2;
 				wp1 = wp1->east;
 				wp2 = wp2->east;
 			}
 		}
 	}
-	cout << "Copy Assignment" << endl ;
+	cout << "Copy Assignment" << endl;
 }
 
 //Copy constructor
-ring::ring(const ring &r){
+ring::ring(const ring& r) {
 	num_rows = r.num_rows;
 	num_cols = r.num_cols;
 	shared_ptr<node> p1;
 	auto p2 = r.head;
 	vector<shared_ptr<node>> vi;
-	for(int i = 0; i < num_rows; ++i)
+	for (int i = 0; i < num_rows; ++i)
 		vi.push_back(*new shared_ptr<node>(new node));
 	head = vi[0];
-	for(int i = 0; i < num_rows; ++i){
+	for (int i = 0; i < num_rows; ++i) {
 		p1 = vi[i];
-		for(int j = 0; j < num_cols; ++j){
-			if(j != num_cols-1){
+		for (int j = 0; j < num_cols; ++j) {
+			if (j != num_cols - 1) {
 				p1->value = p2->value;
 				p1->east = *new shared_ptr<node>(new node);
 				p1 = p1->east;
 				p2 = p2->east;
-			} else if(i == num_rows-1 && j == num_cols-1){
+			}
+			else if (i == num_rows - 1 && j == num_cols - 1) {
 				p1->value = p2->value;
 				p1->east = vi[0];
 				p2 = p2->east;
-			} else{
+			}
+			else {
 				p1->value = p2->value;
-				p1->east = vi[i+1];
+				p1->east = vi[i + 1];
 				p2 = p2->east;
 			}
 		}
 	}
 
 	//This is where I set the south (weak pointers) of each node
-	for(int i = 0; i < num_rows; ++i){
+	for (int i = 0; i < num_rows; ++i) {
 		shared_ptr<node> wp1 = vi[i];
 		shared_ptr<node> wp2;
-		if(i == num_rows-1) wp2 = vi[0]->east;
-		else wp2 =  vi[i+1];
-		for(int j = 0; j < num_cols; ++j){
-			if(j == num_cols-1 && i == num_rows-1){
+		if (i == num_rows - 1) wp2 = vi[0]->east;
+		else wp2 = vi[i + 1];
+		for (int j = 0; j < num_cols; ++j) {
+			if (j == num_cols - 1 && i == num_rows - 1) {
 				wp1->south = head;
-			} else{
+			}
+			else {
 				wp1->south = wp2;
 				wp1 = wp1->east;
 				wp2 = wp2->east;
@@ -199,34 +207,34 @@ ring::ring(const ring &r){
 }
 
 /*
-In this function I used a vector for the starting node of each row. 
+In this function I used a vector for the starting node of each row.
 For example in the case of:
-
-1 2 3 
+1 2 3
 4 5 6
 7 8 9
-
 The node with the value of 1 is the head and the nodes being stored in the vector are 1, 4, and 7.
 */
-ring::ring(int r, int c, int k){
+ring::ring(int r, int c, int k) {
 	//Base cases
-	if(r == 1 && c == 1){
+	if (r == 1 && c == 1) {
 		num_cols = c;
 		num_rows = r;
 		head = *new shared_ptr<node>(new node(rand() % k));
 		head->east = head;
 		head->south = head;
 		return;
-	} else if((r == 1 && c > 1) || (c == 1 & r > 1)){
+	}
+	else if ((r == 1 && c > 1) || (c == 1 && r > 1)) {
 		num_cols = c;
 		num_rows = r;
 		head = *new shared_ptr<node>(new node(rand() % k));
 		shared_ptr<node> p1 = head;
-		for(int i = 0; i < num_cols; ++i){
-			if(i != num_cols-1){
+		for (int i = 0; i < num_cols; ++i) {
+			if (i != num_cols - 1) {
 				p1->east = *new shared_ptr<node>(new node(rand() % k));
 				p1->south = p1->east;
-			}else{
+			}
+			else {
 				p1->south = head;
 				p1->east = head;
 			}
@@ -234,45 +242,49 @@ ring::ring(int r, int c, int k){
 		return;
 	}
 	//End base cases and begin populating vector.
-    head = *new shared_ptr<node>(new node(rand() % k));
-    num_cols = c;
-    num_rows = r;
-  	vector<shared_ptr<node>> startPositions;
+	head = *new shared_ptr<node>(new node(rand() % k));
+	num_cols = c;
+	num_rows = r;
+	vector<shared_ptr<node>> startPositions;
 	startPositions.push_back(head);
-	for(int i = 0; i < num_rows-1; ++i){
+	for (int i = 0; i < num_rows - 1; ++i) {
 		shared_ptr<node> p1 = *new shared_ptr<node>(new node(rand() % k));
 		startPositions.push_back(p1);
 	}
 	//End pushing to vector. Now setting values and east references.
 	shared_ptr<node> p1;
-	for(int i = 0; i < num_rows; i++){
-		for(int j = 0; j < num_cols; ++j){
-			if(j == 0){
-				if(i == 0) p1 = startPositions[i];
+	for (int i = 0; i < num_rows; i++) {
+		for (int j = 0; j < num_cols; ++j) {
+			if (j == 0) {
+				if (i == 0) p1 = startPositions[i];
 				p1->east = *new shared_ptr<node>(new node(rand() % k));
 				p1 = p1->east;
-			} else if(j != num_cols -1){
+			}
+			else if (j != num_cols - 1) {
 				p1->east = *new shared_ptr<node>(new node(rand() % k));
 				p1 = p1->east;
-			} else if(i == num_rows -1 && j == num_cols-1){
+			}
+			else if (i == num_rows - 1 && j == num_cols - 1) {
 				p1->east = head;
-			} else{
-				p1->east = startPositions[i+1];
+			}
+			else {
+				p1->east = startPositions[i + 1];
 				p1 = p1->east;
 			}
 		}
 	}
 
 	//Setting the south (weak pointers) of each node.
-	for(int i = 0; i < num_rows; ++i){
+	for (int i = 0; i < num_rows; ++i) {
 		shared_ptr<node> wp1 = startPositions[i];
 		shared_ptr<node> wp2;
-		if(i == num_rows-1) wp2 = startPositions[0]->east;
-		else wp2 =  startPositions[i+1];
-		for(int j = 0; j < num_cols; ++j){
-			if(j == num_cols-1 && i == num_rows-1){
+		if (i == num_rows - 1) wp2 = startPositions[0]->east;
+		else wp2 = startPositions[i + 1];
+		for (int j = 0; j < num_cols; ++j) {
+			if (j == num_cols - 1 && i == num_rows - 1) {
 				wp1->south = head;
-			} else{
+			}
+			else {
 				wp1->south = wp2;
 				wp1 = wp1->east;
 				wp2 = wp2->east;
@@ -283,28 +295,29 @@ ring::ring(int r, int c, int k){
 
 /*
 Delete a column and use a vector to keep track of the first node in each row. This also takes into account the base case of:
-
 0 . . . n
 .
 .
 .
 n
-
 The extra smart pointers are then deleted. A vector is also used to keep track of the first element of each row.
-We also lock() the weak pointer that points to a new column so that we don't mistakingly delete nodes that shouldn't 
+We also lock() the weak pointer that points to a new column so that we don't mistakingly delete nodes that shouldn't
 be deleted.
 */
-void ring::DelCol(int i){
+void ring::DelCol(int i) {
 	//Base Case
-	if(i >= num_cols || i < 0) return;
-	if(!head) return;
-	if(num_cols == 1){
-		this->~ring();
+	if (i >= num_cols || i < 0) return;
+	if (!head) return;
+	if (num_cols == 1) {
+		head->east.reset();
+		head->south.reset();
+		head.reset();
 		num_cols -= 1;
 		return;
-	} else if(num_rows == 1 && num_cols > 1 && i == 0){
+	}
+	else if (num_rows == 1 && num_cols > 1 && i == 0) {
 		auto p1 = head;
-		for(int k = 0; k < num_cols; ++k){
+		for (int k = 0; k < num_cols; ++k) {
 			p1 = p1->east;
 		}
 		head = head->east;
@@ -312,9 +325,10 @@ void ring::DelCol(int i){
 		p1->east = head;
 		num_cols -= 1;
 		return;
-	} else if(num_rows == 1 && num_cols > 1){
+	}
+	else if (num_rows == 1 && num_cols > 1) {
 		auto p1 = head;
-		for(int j = 0; j < i; ++j){
+		for (int j = 0; j < i; ++j) {
 			p1 = p1->east;
 		}
 		p1->east = p1->east->east;
@@ -326,35 +340,38 @@ void ring::DelCol(int i){
 	vector<shared_ptr<node>> vi;
 	auto p1 = head;
 	vi.push_back(p1);
-	for(int j = 0; j < num_rows-1; ++j){
-			p1 = p1->south.lock();
-			vi.push_back(p1);
-	}	
+	for (int j = 0; j < num_rows - 1; ++j) {
+		p1 = p1->south.lock();
+		vi.push_back(p1);
+	}
 	//If we are deleteing a column which involves the head then we manipulate the pointers to isolate the column.
-	if(i == 0){
-		for(int k = 0; k < num_rows; ++k){
+	if (i == 0) {
+		for (int k = 0; k < num_rows; ++k) {
 			auto p2 = vi[k];
-			for(int j = 0; j < num_cols; ++j){
-				if(k == num_rows-1 && j == num_cols-1){
+			for (int j = 0; j < num_cols; ++j) {
+				if (k == num_rows - 1 && j == num_cols - 1) {
 					head = head->east;
 					p2->east = head;
 					p2->south = head;
-				} else if(j == num_cols-1)
+				}
+				else if (j == num_cols - 1)
 					p2->east = p2->east->east;
 				p2 = p2->east;
 			}
 		}
 		num_cols -= 1;
 
-	//If we are deleting a column that doesn't involve the head being deleted.
-	} else {
-		for(int k = 0; k < num_rows; ++k){
+		//If we are deleting a column that doesn't involve the head being deleted.
+	}
+	else {
+		for (int k = 0; k < num_rows; ++k) {
 			auto p2 = vi[k];
-			for(int j = 0; j < i; ++j){
-				if(j == i-1 && k == num_rows-1){
+			for (int j = 0; j < i; ++j) {
+				if (j == i - 1 && k == num_rows - 1) {
 					p2->east = p2->east->east;
 					p2->south = p2->south.lock()->east;
-				}else if(j == i-1) 
+				}
+				else if (j == i - 1)
 					p2->east = p2->east->east;
 				p2 = p2->east;
 			}
@@ -364,25 +381,29 @@ void ring::DelCol(int i){
 }
 
 //Delete a row and use a vector to keep track of the first node in each row. This also takes into account base cases.
-void ring::DelRow(int i){
-	if(i >= num_rows || i < 0) return;
-	if(!head) return;
-	if(num_rows == 1){
-		this->~ring();
+void ring::DelRow(int i) {
+	if (i >= num_rows || i < 0) return;
+	if (!head) return;
+	if (num_rows == 1) {
+		head->east.reset();
+		head->south.reset();
+		head.reset();
 		num_rows -= 1;
 		return;
-	} else if(num_rows > 1 && num_cols == 1 && i == 0){
+	}
+	else if (num_rows > 1 && num_cols == 1 && i == 0) {
 		auto p1 = head;
-		while(p1->east != head)
+		while (p1->east != head)
 			p1 = p1->east;
 		p1->east = p1->east->east;
 		p1->south = p1->east;
 		head = head->east;
-		num_rows-=1;
+		num_rows -= 1;
 		return;
-	} else if(num_rows > 1 && num_cols == 1){
+	}
+	else if (num_rows > 1 && num_cols == 1) {
 		auto p1 = head;
-		for(int j = 0; j < i-1; ++j)
+		for (int j = 0; j < i - 1; ++j)
 			p1 = p1->east;
 		p1->east = p1->east->east;
 		p1->south = p1->east;
@@ -393,43 +414,46 @@ void ring::DelRow(int i){
 	vector<shared_ptr<node>> vi;
 	auto p1 = head;
 	vi.push_back(p1);
-	for(int j = 0; j < num_rows-1; ++j){
-		for(int k = 0; k < num_cols; ++k){
+	for (int j = 0; j < num_rows - 1; ++j) {
+		for (int k = 0; k < num_cols; ++k) {
 			p1 = p1->south.lock();
 			vi.push_back(p1);
 		}
 	}
 	//If i is the head.
-	if(i == 0){
-		auto p2 = vi[num_rows-1];
+	if (i == 0) {
+		auto p2 = vi[num_rows - 1];
 		auto p3 = vi[1]->east;
-		for(int j = 0; j < num_cols; ++j){
-			if(j == num_cols-1){
+		for (int j = 0; j < num_cols; ++j) {
+			if (j == num_cols - 1) {
 				p2->south = vi[1];
 				p2->east = vi[1];
 				head = vi[1];
-			}else{
+			}
+			else {
 				p2->south = p3;
 				p2 = p2->east;
 				p3 = p3->east;
 			}
 		}
 		num_rows -= 1;
-	//If i isn't the head.
-	} else {
-			auto p2 = vi[i-1];
-			auto p3 = vi[i];
-			for(int j = 0; j < num_cols; ++j
-			){
-				if(j == num_cols-1){
-					p2->south = p3->south;
-					p2->east = p3->east;
-				}else {
-					p2->south = p3->south;
-					p3 = p3->east;
-					p2 = p2->east;
-				}
+		//If i isn't the head.
+	}
+	else {
+		auto p2 = vi[i - 1];
+		auto p3 = vi[i];
+		for (int j = 0; j < num_cols; ++j
+			) {
+			if (j == num_cols - 1) {
+				p2->south = p3->south;
+				p2->east = p3->east;
 			}
+			else {
+				p2->south = p3->south;
+				p3 = p3->east;
+				p2 = p2->east;
+			}
+		}
 		num_rows -= 1;
 	}
 }
@@ -437,47 +461,47 @@ void ring::DelRow(int i){
 /*
 Destructor resets the east and south smart pointers and then resets itself.
 */
-ring::~ring(){
-    if(head){
+ring::~ring() {
+	if (head) {
 		head->east.reset();
 		head->south.reset();
-		head.reset(); 
+		head.reset();
 	}
 
 	cout << "Destructor" << endl;
-} 
+}
 
 //Move constructor for ring. 
-ring::ring(ring &&r){
-    head = r.head;
-    num_cols = r.num_cols;
-    num_rows = r.num_rows;
-    r.head.reset();
+ring::ring(ring&& r) {
+	head = r.head;
+	num_cols = r.num_cols;
+	num_rows = r.num_rows;
+	r.head.reset();
 	cout << "Move Constructor" << endl;
 }
 
 //Move assignment for ring.
-void ring::operator=(ring &&r){
-    head = r.head;
-    num_cols = r.num_cols;
-    num_rows = r.num_rows;
-    r.head.reset();
+void ring::operator=(ring&& r) {
+	head = r.head;
+	num_cols = r.num_cols;
+	num_rows = r.num_rows;
+	r.head.reset();
 	cout << "Move Assignment" << endl;
 }
 
 //operator for << overloaded to print the values of each node.
-ostream& operator<<(ostream& os, const ring& r){
+ostream& operator<<(ostream& os, const ring& r) {
 	auto p1 = r.head;
 	os << endl;
-	for(int i = 0; i < r.num_rows; ++i){
-		for(int j = 0; j < r.num_cols; ++j){
-			if(p1->value >= 10) os << p1->value << " ";
-			else os <<  p1->value << "  ";
+	for (int i = 0; i < r.num_rows; ++i) {
+		for (int j = 0; j < r.num_cols; ++j) {
+			if (p1->value >= 10) os << p1->value << " ";
+			else os << p1->value << "  ";
 			p1 = p1->east;
 		}
 		os << endl;
 	}
-    return os;
+	return os;
 }
 
 
@@ -505,7 +529,7 @@ int main() {
 	cout << *p1 << endl;
 	p1.reset();
 
-	ring R3 = { {10,20,30,40,50} , {100, 200, 300, 400, 500}, {1000, 2000, 3000, 4000, 5000} };//
+	ring R3 = { {10,20,30,40,50} , {100, 200, 300, 400, 500}, {1000, 2000, 3000, 4000, 5000} };
 	cout << R3 << endl;
 	ring R4(R3);
 	cout << R4 << endl;
